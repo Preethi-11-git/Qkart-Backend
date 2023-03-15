@@ -1,14 +1,23 @@
+<<<<<<< HEAD
 /* TODO: CRIO_TASK_MODULE_REGISTER - For screens of min width 768px, display the form content to the right end of the screen */
+=======
+>>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
 .content {
   background-image: url("../assets/hero_image.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   display: flex;
+<<<<<<< HEAD
   justify-content: end;
   align-items: center;
   height: 70vh;
   padding:50px 0;
+=======
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+>>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
 }
 
 .form {

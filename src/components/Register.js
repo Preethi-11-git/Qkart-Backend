@@ -8,6 +8,7 @@ import Footer from "./Footer";
 import Header from "./Header";
 import "./Register.css";
 import { useHistory, Link } from "react-router-dom";
+<<<<<<< HEAD
 import { VapingRooms } from "@mui/icons-material";
 
 const Register = () => {
@@ -20,6 +21,13 @@ const Register = () => {
   let [loading, isloaded] = useState(false);
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
+=======
+
+const Register = () => {
+  const { enqueueSnackbar } = useSnackbar();
+
+
+>>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
   /**
    * Definition for register handler
    * - Function to be called when the user clicks on the register button or submits the register form
@@ -43,6 +51,7 @@ const Register = () => {
    * }
    */
   const register = async (formData) => {
+<<<<<<< HEAD
     try {
       if (
         validateInput({
@@ -84,6 +93,10 @@ const Register = () => {
   };
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement user input validation logic
+=======
+  };
+
+>>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
   /**
    * Validate the input values so that any bad or illegal values are not passed to the backend.
    *
@@ -102,6 +115,7 @@ const Register = () => {
    * -    Check that confirmPassword field has the same value as password field - Passwords do not match
    */
   const validateInput = (data) => {
+<<<<<<< HEAD
     if (data.username.length === 0) {
       enqueueSnackbar("Username is a required field",{variant:"error"});
       return false;
@@ -125,6 +139,10 @@ const Register = () => {
   const takepassword = (event) => setpassword(event.target.value);
   const takeconfirmpassword = (event) => setconfirmPassword(event.target.value);
 
+=======
+  };
+
+>>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
   return (
     <Box
       display="flex"
@@ -144,7 +162,10 @@ const Register = () => {
             name="username"
             placeholder="Enter Username"
             fullWidth
+<<<<<<< HEAD
             onChange={takeusername}
+=======
+>>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
           />
           <TextField
             id="password"
@@ -155,7 +176,10 @@ const Register = () => {
             helperText="Password must be atleast 6 characters length"
             fullWidth
             placeholder="Enter a password with minimum 6 characters"
+<<<<<<< HEAD
             onChange={takepassword}
+=======
+>>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
           />
           <TextField
             id="confirmPassword"
@@ -164,6 +188,7 @@ const Register = () => {
             name="confirmPassword"
             type="password"
             fullWidth
+<<<<<<< HEAD
             onChange={takeconfirmpassword}
           />
           {loading ? (
@@ -184,6 +209,11 @@ const Register = () => {
             <a className="link" href="#">
               Login here
             </a>
+=======
+          />
+          <p className="secondary-action">
+            Already have an account?{" "}
+>>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
           </p>
         </Stack>
       </Box>
