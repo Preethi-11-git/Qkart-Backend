@@ -2,16 +2,20 @@ import { Button, CircularProgress, Stack, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Register.css";
 import { useHistory, Link } from "react-router-dom";
-<<<<<<< HEAD
 import { VapingRooms } from "@mui/icons-material";
 
 const Register = () => {
+  useEffect(() => {
+    window.localStorage.clear();
+    console.log("Inside the register")
+    console.log(localStorage.getItem("token"))
+  },[]);
   const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
 
@@ -21,13 +25,6 @@ const Register = () => {
   let [loading, isloaded] = useState(false);
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
-=======
-
-const Register = () => {
-  const { enqueueSnackbar } = useSnackbar();
-
-
->>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
   /**
    * Definition for register handler
    * - Function to be called when the user clicks on the register button or submits the register form
@@ -51,8 +48,8 @@ const Register = () => {
    * }
    */
   const register = async (formData) => {
-<<<<<<< HEAD
     try {
+      
       if (
         validateInput({
           username: userName,
@@ -68,18 +65,18 @@ const Register = () => {
           })
           .then((res) => {
             isloaded(false);
-            enqueueSnackbar("Registered Successfully",{variant:"success"});
-            // history.push("/login", { from: "Homepage" });
+            enqueueSnackbar("Registered Successfully",{variant:"success",autoHideDuration:3000});
+            history.push("/login", { from: "Homepage" });
           })
           .catch((err) => {
             if (!err.response) {
               enqueueSnackbar(
                 "Something went wrong. Check that the backend is running, reachable and returns valid JSON."
-                ,{variant:"error"}
+                ,{variant:"error",autoHideDuration:3000}
               );
               isloaded(false);
             } else if (err.response.status === 400) {
-              enqueueSnackbar(err.response.data.message,{variant:"error"});
+              enqueueSnackbar(err.response.data.message,{variant:"error",autoHideDuration:3000});
               isloaded(false);
             }
           });
@@ -87,16 +84,12 @@ const Register = () => {
     } catch (err) {
       enqueueSnackbar(
         "Something went wrong. Check that the backend is running, reachable and returns valid JSON."
-        ,{variant:"error"}
+        ,{variant:"error",autoHideDuration:3000}
       );
     }
   };
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement user input validation logic
-=======
-  };
-
->>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
   /**
    * Validate the input values so that any bad or illegal values are not passed to the backend.
    *
@@ -115,21 +108,20 @@ const Register = () => {
    * -    Check that confirmPassword field has the same value as password field - Passwords do not match
    */
   const validateInput = (data) => {
-<<<<<<< HEAD
     if (data.username.length === 0) {
-      enqueueSnackbar("Username is a required field",{variant:"error"});
+      enqueueSnackbar("Username is a required field",{variant:"error",autoHideDuration:3000});
       return false;
     } else if (data.username.length < 6) {
-      enqueueSnackbar("Username must be at least 6 characters",{variant:"warning"});
+      enqueueSnackbar("Username must be at least 6 characters",{variant:"warning",autoHideDuration:3000});
       return false;
     } else if (data.password.length === 0) {
-      enqueueSnackbar("Password is a required field",{variant:"error"});
+      enqueueSnackbar("Password is a required field",{variant:"error",autoHideDuration:3000});
       return false;
     } else if (data.password.length < 6) {
-      enqueueSnackbar("Password must be at least 6 characters",{variant:"warning"});
+      enqueueSnackbar("Password must be at least 6 characters",{variant:"warning",autoHideDuration:3000});
       return false;
     } else if (data.password !== data.confirmPassword) {
-      enqueueSnackbar("Passwords do not match",{variant:"warning"});
+      enqueueSnackbar("Passwords do not match",{variant:"warning",autoHideDuration:3000});
       return false;
     }
     return true;
@@ -138,12 +130,9 @@ const Register = () => {
   const takeusername = (event) => setuserName(event.target.value);
   const takepassword = (event) => setpassword(event.target.value);
   const takeconfirmpassword = (event) => setconfirmPassword(event.target.value);
-
-=======
-  };
-
->>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
+  
   return (
+    
     <Box
       display="flex"
       flexDirection="column"
@@ -162,10 +151,7 @@ const Register = () => {
             name="username"
             placeholder="Enter Username"
             fullWidth
-<<<<<<< HEAD
             onChange={takeusername}
-=======
->>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
           />
           <TextField
             id="password"
@@ -176,10 +162,7 @@ const Register = () => {
             helperText="Password must be atleast 6 characters length"
             fullWidth
             placeholder="Enter a password with minimum 6 characters"
-<<<<<<< HEAD
             onChange={takepassword}
-=======
->>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
           />
           <TextField
             id="confirmPassword"
@@ -188,15 +171,14 @@ const Register = () => {
             name="confirmPassword"
             type="password"
             fullWidth
-<<<<<<< HEAD
             onChange={takeconfirmpassword}
           />
           {loading ? (
-            <CircularProgress style={{ alignItems: "center" }} />
+            <Stack alignItems="center"> <CircularProgress /> </Stack> 
           ) : (
             <Button
               role="button"
-              className={loading ? "myStyle button" : "myStyle1 button"}
+              
               variant="contained"
               onClick={register}
             >
@@ -206,14 +188,12 @@ const Register = () => {
           )}
           <p className="secondary-action">
             Already have an account?{" "}
-            <a className="link" href="#">
+            
+            <Link className="link" role="link" to="/login">
               Login here
-            </a>
-=======
-          />
-          <p className="secondary-action">
-            Already have an account?{" "}
->>>>>>> 18e1a7584878a339de60b412e34dfe28a89b31f9
+            </Link>
+           
+            
           </p>
         </Stack>
       </Box>
