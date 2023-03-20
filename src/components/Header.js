@@ -3,10 +3,14 @@ import { Avatar, Button, Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import React from "react";
 import "./Header.css";
+// import {performSearch} from "./Products"
 import { useHistory } from "react-router-dom";
-
+import { Search, SentimentDissatisfied } from "@mui/icons-material";
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField from '@mui/material/TextField';
 
 const Header = ({ children, hasHiddenAuthButtons }) => {
+  // console.log(children)
   const history = useHistory();
   const name = localStorage.getItem("username");
     return (
@@ -14,6 +18,13 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
         <Box className="header-title">
             <img src="logo_light.svg" alt="QKart-icon"></img>
         </Box>
+        {
+  children&&
+  <Box>
+  {children}
+      </Box>
+      
+        }
         {hasHiddenAuthButtons?(
         <Button
           className="explore-button"
@@ -25,12 +36,13 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
         </Button>):(    
             name?
             (
+                 
             <Stack direction="row" spacing={2}>
               
               <Avatar alt={name} src="../../public/avatar.png" ></Avatar>
-              <p id="username">{name}</p>
+              <p className="username-text">{name}</p>
             
-            <Button
+              <Button
               className="logout"
               variant="text"
               onClick={() => {
@@ -66,6 +78,7 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
             )
         )
 }
+
       </Box>
     );
 };
