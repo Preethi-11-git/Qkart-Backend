@@ -48,6 +48,26 @@ import "./Cart.css";
  *
  */
 export const generateCartItemsFrom = (cartData, productsData) => {
+  let cartDataDetails=[]
+  // console.log("came hereeeeeeeee") 
+  // console.log(cartData);
+  // console.log(productsData);
+  for(let i=0;i<cartData.length;i++)
+  {
+    for(let j=0;j<productsData.length;j++)
+    {
+        if(cartData[i].productId===productsData[j]._id)
+        {
+        cartDataDetails.push(productsData[j])
+        // console.log(cartDataDetails[i])
+        cartDataDetails[i].qty=cartData[i].qty;
+        }
+    }
+  }
+ console.log("cart data details final")
+ console.log(cartDataDetails)
+ return cartDataDetails;
+  
 };
 
 /**
@@ -61,6 +81,13 @@ export const generateCartItemsFrom = (cartData, productsData) => {
  *
  */
 export const getTotalCartValue = (items = []) => {
+  let price=0;
+  for(let i=0;i<items.length;i++)
+  {
+    let cost=items[i].qty * items[i].cost;
+    price+=cost
+  }
+  return price
 };
 
 
@@ -117,7 +144,8 @@ const Cart = ({
   items = [],
   handleQuantity,
 }) => {
-
+  const user_token = localStorage.getItem("token");
+  const history=useHistory()
   if (!items.length) {
     return (
       <Box className="cart empty">
@@ -133,6 +161,58 @@ const Cart = ({
     <>
       <Box className="cart">
         {/* TODO: CRIO_TASK_MODULE_CART - Display view for each cart item with non-zero quantity */}
+        {items.map((val,index) => {
+                   return (
+                     
+                    <Box display="flex" alignItems="flex-start" padding="1rem">
+                        <Box className="image-container">
+                            <img
+                                // Add product image
+                                src={val.image}
+                                // Add product name as alt eext
+                                alt="Image of product"
+                                width="100%"
+                                height="100%"
+                            />
+                        </Box>
+                        <Box
+                            display="flex"
+                            flexDirection="column"
+                            justifyContent="space-between"
+                            height="6rem"
+                            paddingX="1rem"
+                        >
+                            <div>{val.name}</div>
+                            <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems="center"
+                            >
+                            <ItemQuantity value={val.qty} handleAdd =
+                            {
+                              async()=>{
+                                let new_val=val.qty+1
+                                handleQuantity(user_token,{"productId":val._id,"qty":new_val},products,new_val,false)
+                              }
+                            }
+                            handleDelete=
+                            {
+                              async()=>{
+                                let new_val=val.qty-1
+                                handleQuantity(user_token,{"productId":val._id,"qty":new_val},products,new_val,false)
+                              }
+                            }
+                            // Add required props by checking implementation
+                            />
+                            <Box padding="0.5rem" fontWeight="700">
+                                ${val.cost}
+                            </Box>
+                            </Box>
+                        </Box>
+                    </Box>
+                   );
+                 })}
+
         <Box
           padding="1rem"
           display="flex"
@@ -159,6 +239,7 @@ const Cart = ({
             variant="contained"
             startIcon={<ShoppingCart />}
             className="checkout-btn"
+            onClick={() => history.push("/checkout", { from: "Cart" })}
           >
             Checkout
           </Button>

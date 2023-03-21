@@ -13,6 +13,9 @@ import "./ProductCard.css";
 
 
 const ProductCard = ({ product, handleAddToCart }) => {
+  const token = localStorage.getItem("token");
+  // console.log("token is ")
+  // console.log(token);
   // console.log(product);
   return (
    
@@ -32,7 +35,7 @@ const ProductCard = ({ product, handleAddToCart }) => {
         <Rating name="read-only" value={product.rating} readOnly />
       </CardContent>
       <CardActions className="card-actions">
-        <Button name="add to cart" variant="contained" className="card-button" fullWidth><AddShoppingCartOutlined ></AddShoppingCartOutlined >&nbsp; ADD TO CART</Button>
+        <Button name="add to cart" variant="contained" className="card-button" onClick={()=>{handleAddToCart(token,{"productId":product._id,"qty":1},product,product._id,true)}} fullWidth><AddShoppingCartOutlined ></AddShoppingCartOutlined >&nbsp; ADD TO CART</Button>
       </CardActions>
     </Card>
   );
