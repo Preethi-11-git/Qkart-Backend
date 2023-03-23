@@ -90,6 +90,16 @@ export const getTotalCartValue = (items = []) => {
   return price
 };
 
+const getTotalItems = (items = []) => {
+  let qty=0;
+  for(let i=0;i<items.length;i++)
+  {
+    
+      qty+=items[i].qty;
+  }
+  return qty;
+};
+
 
 /**
  * Component to display the current quantity for a product and + and - buttons to update product quantity on cart
@@ -109,21 +119,29 @@ const ItemQuantity = ({
   value,
   handleAdd,
   handleDelete,
+  isReadOnly
 }) => {
   return (
-    <Stack direction="row" alignItems="center">
-      <IconButton size="small" color="primary" onClick={handleDelete}>
-        <RemoveOutlined />
-      </IconButton>
-      <Box padding="0.5rem" data-testid="item-qty">
-        {value}
-      </Box>
-      <IconButton size="small" color="primary" onClick={handleAdd}>
-        <AddOutlined />
-      </IconButton>
-    </Stack>
-  );
+    isReadOnly?(
+    <Box padding="0.5rem" data-testid="item-qty">
+      Qty: {value}
+    </Box>
+  ):
+  (<Stack direction="row" alignItems="center">
+    <IconButton size="small" color="primary" onClick={handleDelete}>
+      <RemoveOutlined />
+    </IconButton>
+    <Box padding="0.5rem" data-testid="item-qty">
+      {value}
+    </Box>
+    <IconButton size="small" color="primary" onClick={handleAdd}>
+      <AddOutlined />
+    </IconButton>
+  </Stack>)
+  )
 };
+  
+
 
 /**
  * Component to display the Cart view
@@ -143,6 +161,7 @@ const Cart = ({
   products,
   items = [],
   handleQuantity,
+  isReadOnly
 }) => {
   const user_token = localStorage.getItem("token");
   const history=useHistory()
@@ -188,22 +207,26 @@ const Cart = ({
                                 justifyContent="space-between"
                                 alignItems="center"
                             >
-                            <ItemQuantity value={val.qty} handleAdd =
+                            {isReadOnly?
+                            ( <ItemQuantity value={val.qty} isReadOnly />):
+                            (
+                              <ItemQuantity value={val.qty} handleAdd =
                             {
                               async()=>{
                                 let new_val=val.qty+1
-                                handleQuantity(user_token,{"productId":val._id,"qty":new_val},products,new_val,false)
+                                handleQuantity(user_token,{"productId":val._id,"qty":new_val},products,val._id,new_val,false)
                               }
                             }
                             handleDelete=
                             {
                               async()=>{
                                 let new_val=val.qty-1
-                                handleQuantity(user_token,{"productId":val._id,"qty":new_val},products,new_val,false)
+                                handleQuantity(user_token,{"productId":val._id,"qty":new_val},products,val._id,new_val,false)
                               }
                             }
                             // Add required props by checking implementation
                             />
+                            )}
                             <Box padding="0.5rem" fontWeight="700">
                                 ${val.cost}
                             </Box>
@@ -232,7 +255,8 @@ const Cart = ({
             ${getTotalCartValue(items)}
           </Box>
         </Box>
-
+        {isReadOnly!=true &&
+        (
         <Box display="flex" justifyContent="flex-end" className="cart-footer">
           <Button
             color="primary"
@@ -243,8 +267,97 @@ const Cart = ({
           >
             Checkout
           </Button>
-        </Box>
+        </Box>)
+}
       </Box>
+     {
+      isReadOnly &&
+      (
+        <Box className="cart">
+             <Box padding="1rem" fontWeight="700" fontSize="1.5rem"><strong>Order Details</strong></Box>
+             <Box
+          padding="0.5rem"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+           >
+          <Box color="#3C3C3C" alignSelf="center">
+           Products
+          </Box>
+          <Box
+            color="#3C3C3C"
+            alignSelf="center"
+          >
+           { getTotalItems(items)}
+          </Box>
+        </Box>
+
+        <Box
+          padding="0.5rem"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+           >
+          <Box color="#3C3C3C" alignSelf="center">
+            Subtotal
+          </Box>
+          <Box
+            color="#3C3C3C"
+            alignSelf="center"
+          >
+            ${getTotalCartValue(items)}
+          </Box>
+        </Box>
+
+        <Box
+          padding="0.5rem"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+           >
+          <Box color="#3C3C3C" alignSelf="center">
+            Shipping Charges
+          </Box>
+          <Box
+            color="#3C3C3C"
+            alignSelf="center"
+            data-testid="cart-total"
+          >
+            $0
+          </Box>
+        </Box>
+
+        <Box
+          padding="0.5rem"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+           >
+          <Box color="#3C3C3C" alignSelf="center"fontWeight="700"
+            fontSize="1rem">
+            Total
+          </Box>
+          <Box
+            color="#3C3C3C"
+            fontWeight="700"
+            fontSize="1rem"
+            alignSelf="center"
+            data-testid="cart-total"
+          >
+            ${getTotalCartValue(items)}
+          </Box>
+        </Box>
+
+        
+          </Box>
+        
+      )
+     }
+
+
+      
+      
+      
     </>
   );
 };

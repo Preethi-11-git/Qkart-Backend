@@ -101,20 +101,49 @@ const AddNewAddressView = ({
   addAddress,
 }) => {
   return (
+
     <Box display="flex" flexDirection="column">
       <TextField
         multiline
         minRows={4}
         placeholder="Enter your complete address"
+        onChange={(event)=>{
+          handleNewAddress((currNewAddress) => ({
+            ...currNewAddress,
+            value:event.target.value
+          }));
+        }}
       />
       <Stack direction="row" my="1rem">
         <Button
           variant="contained"
+          onClick={async()=>{
+            try{
+
+              let response=await addAddress(token,newAddress)
+              handleNewAddress((currNewAddress) => ({
+                ...currNewAddress,
+                isAddingNewAddress: false,
+              }));
+              console.log("Inside adding by own on clicking add button")
+              console.log(response)
+            }
+            catch(err)
+            {
+              console.log("error inside adding by own on clicking add button")
+              console.log(err)
+            }
+          }
+          }
         >
           Add
         </Button>
         <Button
           variant="text"
+          onClick={()=>{handleNewAddress((currNewAddress) => ({
+            ...currNewAddress,
+            isAddingNewAddress: false,
+          }));}}
         >
           Cancel
         </Button>
@@ -128,6 +157,7 @@ const Checkout = () => {
   const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
   const [items, setItems] = useState([]);
+  const[validated,setIsValidated]=useState(false)
   const [products, setProducts] = useState([]);
   const [addresses, setAddresses] = useState({ all: [], selected: "" });
   const [newAddress, setNewAddress] = useState({
@@ -135,11 +165,11 @@ const Checkout = () => {
     value: "",
   });
 
+
   // Fetch the entire products list
   const getProducts = async () => {
     try {
       const response = await axios.get(`${config.endpoint}/products`);
-
       setProducts(response.data);
       return response.data;
     } catch (e) {
@@ -214,7 +244,11 @@ const Checkout = () => {
         },
       });
 
-      setAddresses({ ...addresses, all: response.data });
+      setAddresses((currNewAddress) => ({
+        ...currNewAddress,
+        all:response.data 
+        
+      }))
       return response.data;
     } catch {
       enqueueSnackbar(
@@ -264,8 +298,23 @@ const Checkout = () => {
   const addAddress = async (token, newAddress) => {
     try {
       // TODO: CRIO_TASK_MODULE_CHECKOUT - Add new address to the backend and display the latest list of addresses
-
-    } catch (e) {
+     
+      let response=await axios.post(`${config.endpoint}/user/addresses`, 
+      {"address":newAddress.value}
+      , {
+        headers: {
+          'Authorization': `Bearer ${token}` 
+        }
+      })
+      setAddresses((currNewAddress) => ({
+        ...currNewAddress,
+        all:response.data 
+        
+      }))
+      console.log("Inside post")
+      return response.data
+    } 
+    catch (e) {
       if (e.response) {
         enqueueSnackbar(e.response.data.message, { variant: "error" });
       } else {
@@ -316,6 +365,18 @@ const Checkout = () => {
   const deleteAddress = async (token, addressId) => {
     try {
       // TODO: CRIO_TASK_MODULE_CHECKOUT - Delete selected address from the backend and display the latest list of addresses
+      const response = await axios.delete(`${config.endpoint}/user/addresses/${addressId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("inside delete address")
+      console.log(response.data)
+      setAddresses((currNewAddress) => ({
+        ...currNewAddress,
+        all:response.data ,
+        
+      }))
 
     } catch (e) {
       if (e.response) {
@@ -356,7 +417,36 @@ const Checkout = () => {
    *    Whether validation passed or not
    *
    */
-  const validateRequest = (items, addresses) => {
+  const validateRequest = (items, addresses) => 
+  {
+       let total=getTotalCartValue(items)
+       let balance=localStorage.getItem("balance");
+      //  console.log("to check validation of selected")
+      //  console.log(addresses.selected.length)
+       if(total>balance)
+       {
+        enqueueSnackbar("You do not have enough balance in your wallet for this purchase",
+        {variant:"warning"})
+        return false;
+       }
+       else if(addresses.all.length<0)
+       {
+        enqueueSnackbar("Please add a new address before proceeding",
+        {variant:"warning"})
+        return false;
+       }
+       else if(addresses.selected.length==0)
+       {
+        enqueueSnackbar("Please select one shipping address to proceed",
+        {variant:"warning"})
+        return false;
+       }
+       console.log("old bal: "+balance)
+       let new_bal=localStorage.getItem("balance");
+       localStorage.setItem("balance",balance-total)
+       console.log("new bal: "+new_bal)
+       return true;
+ 
   };
 
   // TODO: CRIO_TASK_MODULE_CHECKOUT
@@ -392,13 +482,38 @@ const Checkout = () => {
    *
    */
   const performCheckout = async (token, items, addresses) => {
+    if(validateRequest(items,addresses))
+    {
+      console.log("validated and true")
+      try{
+      let response=await axios.post(`${config.endpoint}/cart/checkout`,
+      {"addressId":addresses.selected}, 
+      {
+        headers: {
+          'Authorization': `Bearer ${token}` 
+        }
+      }
+      )
+      return true;
+      }
+      catch(err)
+      {
+        enqueueSnackbar(err.response.message,{variant:"error"})
+        return false;
+      }
+    }
+    else
+    {
+      console.log("validated and false")
+      return false
+    }
   };
 
   // TODO: CRIO_TASK_MODULE_CHECKOUT - Fetch addressses if logged in, otherwise show info message and redirect to Products page
 
 
   // Fetch products and cart data on page load
-  useEffect(() => {
+  useEffect(async() => {
     const onLoadHandler = async () => {
       const productsData = await getProducts();
 
@@ -408,9 +523,26 @@ const Checkout = () => {
         const cartDetails = await generateCartItemsFrom(cartData, productsData);
         setItems(cartDetails);
       }
+
+      if(token)
+    {
+      // localStorage.setItem("balance",5000)
+     let address=await getAddresses(token)
+     console.log("under use effect")
+     console.log(address)
+    }
+    else
+    {
+      enqueueSnackbar("You must be logged in to access checkout page",{variant:"info"})
+      history.push("/login");
+    }
+
     };
+    // console.log("again main address")
+    //   console.log(addresses)
     onLoadHandler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   return (
@@ -428,34 +560,59 @@ const Checkout = () => {
               Select the address you want to get your order delivered.
             </Typography>
             <Divider />
-            <Box>
+            
               {/* TODO: CRIO_TASK_MODULE_CHECKOUT - Display list of addresses and corresponding "Delete" buttons, if present, of which 1 can be selected */}
-               <Typography my="1rem">
-                 No addresses found for this account. Please add one to proceed
-               </Typography>
-            </Box>
+              {
+                addresses.all.length>0?(
+                  addresses.all.map((val)=>
+                  {return(
+                  <Box 
+                  onClick={()=>{setAddresses((currAddresses) => ({
+                    ...currAddresses,
+                    selected: val._id,
+                  }));} }
+
+                className={addresses.selected==val._id ? "address-item selected":"address-item not-selected"}
+                 >
+                    <Typography  >{val.address}</Typography> 
+                    <Button startIcon={<Delete />}
+                    onClick={()=>{deleteAddress(token,val._id)}}> Delete</Button>
+              </Box>
+              )
+            })
+                ):
+                (<Box><Typography my="1rem">
+                No addresses found for this account. Please add one to proceed
+              </Typography>
+           </Box>)
+        
+          }
+              
 
             {/* TODO: CRIO_TASK_MODULE_CHECKOUT - Dislay either "Add new address" button or the <AddNewAddressView> component to edit the currently selected address */}
-            <Button
-                color="primary"
-                variant="contained"
-                id="add-new-btn"
-                size="large"
-                onClick={() => {
-                  setNewAddress((currNewAddress) => ({
-                    ...currNewAddress,
-                    isAddingNewAddress: true,
-                  }));
-                }}
-              >
-                Add new address
-            </Button>
+            {newAddress.isAddingNewAddress ?
+            (
             <AddNewAddressView
                 token={token}
                 newAddress={newAddress}
                 handleNewAddress={setNewAddress}
                 addAddress={addAddress}
-            />
+            />):
+            ( <Button
+              color="primary"
+              variant="contained"
+              id="add-new-btn"
+              size="large"
+              onClick={() => {
+                setNewAddress((currNewAddress) => ({
+                  ...currNewAddress,
+                  isAddingNewAddress: true,
+                }));
+              }}
+            >
+              Add new address
+          </Button>)
+            }
 
             <Typography color="#3C3C3C" variant="h4" my="1rem">
               Payment
@@ -476,17 +633,29 @@ const Checkout = () => {
             <Button
               startIcon={<CreditCard />}
               variant="contained"
+              onClick={async()=>{
+                let result=await performCheckout(token,items,addresses)
+                // console.log("result is ")
+                // console.log(result)
+                setIsValidated(result)
+              }
+              }
             >
               PLACE ORDER
             </Button>
           </Box>
         </Grid>
         <Grid item xs={12} md={3} bgcolor="#E9F5E1">
-          <Cart isReadOnly products={products} items={items} />
+          <Cart isReadOnly={true} products={products} items={items} />
+           
         </Grid>
       </Grid>
       <Footer />
+      {
+        validated&&(history.push("/thanks",{from:"CheckOut"}))
+      }
     </>
+  
   );
 };
 
